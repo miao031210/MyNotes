@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import type { BlockType } from '../utils/types'
 
 interface SlashMenuItem { type: BlockType; icon: string; label: string; desc: string }
@@ -35,12 +35,31 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({ open, position, selectedIn
         return () => document.removeEventListener('mousedown', handler)
     }, [open, onClose])
 
-    useEffect(() => {
-        if (ref.current) {
-            ref.current.style.top = `${position.top}px`
-            ref.current.style.left = `${position.left}px`
+    useLayoutEffect(() => {
+        const el = ref.current
+        if (!el) return
+        // 先按光标位置放在下方
+        let top = position.top
+        const left = position.left
+        el.style.top = `${top}px`
+        el.style.left = `${left}px`
+
+        const rect = el.getBoundingClientRect()
+        const viewportH = window.innerHeight || document.documentElement.clientHeight
+        const margin = 12
+
+        // 如果底部超出视口，则尝试翻到光标上方
+        if (rect.bottom > viewportH - margin) {
+            const newTop = rect.top - rect.height - 2 * margin
+            if (newTop > margin) {
+                top = newTop
+            } else {
+                // 如果上方也不够，就贴近顶部
+                top = margin
+            }
+            el.style.top = `${top}px`
         }
-    }, [position])
+    }, [position, open])
 
     if (!open) return null
 
