@@ -60,12 +60,15 @@ body {
   font-family: var(--font-body);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
 
 /* ── App 外层结构 ────────────────────────────────────────────── */
 #app {
   display: flex;
   flex-direction: column;
+  /* 需要固定高度，让左右滚动容器拥有可计算的视口高度 */
+  height: 100vh;
   min-height: 100vh;
 }
 
@@ -76,12 +79,16 @@ body {
   min-height: 0;
   position: relative;
   overflow: hidden;
+  height: 100%;
 }
 
 /* ── 主内容区 ────────────────────────────────────────────────── */
 .main-content {
   flex: 1;
   min-width: 0;
+  /* 让 flex 子项在 overflow 情况下可以正确收缩，从而可滚动 */
+  min-height: 0;
+  height: 100%;
   overflow-y: auto;
   transition: margin-left 0.25s var(--ease);
 }
@@ -308,11 +315,13 @@ body {
   width: var(--sidebar-w);
   min-width: var(--sidebar-w);
   height: 100%;
+  min-height: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* 让整体高度固定，由内部列表自己滚动 */
+  overflow-y: hidden;
   font-family: var(--font-ui);
   transform: translateX(0);
   transition: transform 0.25s var(--ease),
@@ -397,8 +406,10 @@ body {
 /* ── 笔记列表 ────────────────────────────────────────────────── */
 .sidebar-list {
   flex: 1;
-  overflow-y: auto;
+  min-height: 0;
   padding: 0 6px 16px;
+  /* 仅笔记列表区域出现滚动条，互不影响右侧 */
+  overflow-y: auto;
 }
 
 .sidebar-section-label {
@@ -972,7 +983,8 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   width: 240px;
   z-index: 1000;
-  overflow: hidden;
+  max-height: min(260px, calc(100vh - 24px));
+  overflow-y: auto;
   font-family: var(--font-ui);
   animation: slash-in 0.15s ease-out;
 }
